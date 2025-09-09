@@ -1,0 +1,68 @@
+23 25
+***********************
+*ecececeeeeleeeececece*
+*pcpcpceeeccceeecqcqcq*
+*eeeeeeeeeeeeeeeeeeeee*
+*ecececeeeelmeeececece*
+*pcpcpceeeccceeecqcqcq*
+*eeeeeeeeeeeeeeeeeeeee*
+*ecececeeeeeeeeececece*
+*pcpcpceeeeeeeeecqcqcq*
+*eeeeeeeeeeeee*********
+*meeeeeeeeeeee*eeemeee*
+*eeleeeeeeeeee*eeeeeee*
+*ecceeeeeeeeee*eeeeeee*
+*eeeeeeeeeeeeeeeeeeeee*
+*oooeeeeeeeeee*eeeeeee*
+*oeoeeeeeeeeee*********
+*omeeeeeeeeeeeecceccee*
+*oooooeeeeeeeeeieeieee*
+********e*eeeeecceccee*
+*eeee*eee*eeeeeieeieee*
+*eeee*ecc*eeeeecceccee*
+*eeee*eme*eeeeeieeieee*
+eeeee*****eeeeecceccee*
+*eeeeeeeeeeeeeeieeieee*
+***********************
+q
+
+c - стол
+о - полка
+m - человек
+p - стул вправо
+i - стул вверх
+l - стул вниз
+q - стул влево
+
+23 25
+***********************
+*ecececeeeepeeeececece*
+*pcpcpceeeccceeecpcpcp*
+*eeeeeeeeeeeeeeeeeeeee*
+*ecececeeeepeeeececece*
+*pcpcpceeeccceeecpcpcp*
+*eeeeeeeeeeeeeeeeeeeee*
+*ecececeeeeeeeeececece*
+*pcpcpceeeeeeeeecpcpcp*
+*eeeeeeeeeeeee*********
+*eeeeeeeeeeeee*eeeeeee*
+*eepeeeeeeeeee*eeeeeee*
+*ecceeeeeeeeee*ee1eeee*
+*eeeeeeeeeeeeeeeeeeeee*
+*oooeeeeeeeeee*eeeeeee*
+*oeoeeeeeeeeee*********
+*oee3eeeeeeeeeecceccee*
+*oooooeeeeeeeeepeepeee*
+********e*eeeeecceccee*
+*eeee*e2e*eeeeepeepeee*
+*eeee*ecc*eeeeecceccee*
+*eeee*ebe*eeeeepeepeee*
+4eeee*****eeeeecceccee*
+*eeeeeeeeeeeeeepeepeee*
+***********************
+
+c - стол
+о - полка
+р - человек
+
+

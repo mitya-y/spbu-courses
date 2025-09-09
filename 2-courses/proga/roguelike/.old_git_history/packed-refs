@@ -1,0 +1,7 @@
+# pack-refs with: peeled fully-peeled sorted 
+ec28ebd09b23b1cac02525bfef3e1f1ee6f0fee8 refs/remotes/origin/book-unit
+34f1a9ca2fefbf77048cc7a49eaeb4b8f4a496e9 refs/remotes/origin/debug
+bbc9e1363238971c0507f2069a3c70648d9ad767 refs/remotes/origin/fix-translate
+904c28412ef09f0a00f528cfb25c7d8eebf7b1cb refs/remotes/origin/master
+3b8e2945a1636254efd180d7a7ce0cc453c11cbf refs/remotes/origin/player-model
+f4bca9d20648882b5be99674da4a4cd6d31286bf refs/remotes/origin/plot-develop

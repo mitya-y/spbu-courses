@@ -1,0 +1,46 @@
+From ef09052995320aea378a6db49891a12f1a354b52 Mon Sep 17 00:00:00 2001
+From: Dmitriy Kozenko <8863314@gmail.com>
+Date: Mon, 23 Dec 2024 19:30:21 +0300
+Subject: [PATCH] changes
+
+---
+ Source/OBJ_Loader.h | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/Source/OBJ_Loader.h b/Source/OBJ_Loader.h
+index 0b7d010..71ce76f 100644
+--- a/Source/OBJ_Loader.h
++++ b/Source/OBJ_Loader.h
+@@ -18,7 +18,7 @@
+ #include <math.h>
+ 
+ // Print progress to console while loading (large models)
+-#define OBJL_CONSOLE_OUTPUT
++// #define OBJL_CONSOLE_OUTPUT
+ 
+ // Namespace: OBJL
+ //
+@@ -636,6 +636,9 @@ namespace objl
+ 					outputIndicator = 0;
+ 					#endif
+ 				}
++				if (curline.size() > 0 && curline.back() == '\r') {
++					curline.resize(curline.size() - 1);
++				}
+ 				// Load Materials
+ 				if (algorithm::firstToken(curline) == "mtllib")
+ 				{
+@@ -774,6 +777,10 @@ namespace objl
+ 					}
+ 				}
+ 
++				if (svert[0] == "\r") {
++					continue;
++				}
++
+ 				// Calculate and store the vertex
+ 				switch (vtype)
+ 				{
+-- 
+2.51.0
+

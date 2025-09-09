@@ -1,0 +1,74 @@
+% !TeX spellcheck = ru_RU
+% !TEX root = vkr.tex
+
+\section{Анализ производительности и улучшения алгоритма}
+
+В начале работы был воспроизведен эксперимент из предыдущей работы~\cite{PrevWork} --- проведены замеры производительности реализаций на GPU и CPU на наборе данных Wikidata\footnote{База знаний \textsc{WikiData}: \href{https://www.wikidata.org/wiki/Wikidata:Database_download}{https://www.wikidata.org/wiki/Wikidata:Database\_download} (Дата доступа: 19.06.2025)} \cite{wikidata}. Время выполнения всех первых 520 запросов следующее: для CPU --- 98.3 секунды, для GPU --- 273.3 секунды.
+
+Далее к реализации на GPU был применён анализатор производительности Intel Vtune\footnote{Анализатор vtune: \url{https://www.intel.com/content/www/us/en/developer/tools/oneapi/vtune-profiler.html} (Дата доступа: 19.06.2025)}, был составлен FlameGraph. Распределение времени работы по функциям предоставлено в таблице \ref{tab:FlameGraph1}.      
+
+\begin{table}[ht]
+\centering
+\caption{Распределение времени работы внутри алгоритма}
+\label{tab:FlameGraph1}
+\begin{tabular}{|l|l|l|}
+\hline
+Функция cuBool & Время работы, сек & Часть в \% \\
+\hline
+\verb|cuBool_Matrix_EWiseAdd| & 164.2 & 60.1\% \\
+\verb|cuBool_MxM| & 70.7 & 25.9\% \\
+\verb|cuBool_Matrix_Transpose| & 30.5 & 11.2\% \\
+\verb|cuBool_Matrix_EWiseMulInverted| & 6.0 & 2.2\% \\
+\verb|cuBool_Matrix_Free| & 1.7 & 0.6\% \\
+\hline
+\end{tabular}
+\end{table}
+
+То, что функция сложения матриц занимает больше всего времени, очень необычно. Если посмотреть на псевдокод алгоритма \ref{AlgoCode}, то можно заметить, что операция сложения применяется не чаще операции поэлементного умножения на инвертированную матрицу, а асимптотически операции очень похожи, это видно из сравнения пункта \ref{MatrixAddSection} и пункта 3.3 из работы~\cite{PrevWork}. Но функция сложения занимает в разы больше времени относительно функции поэлементного умножения на инвертированную матрицу.
+
+Была изучена реализация функции сложения матриц\footnote{\href{https://github.com/SparseLinearAlgebra/cuBool/blob/ab425e17000af8763e7b2cdf020589f8b2db371d/cubool/sources/cuda/kernels/spmerge.cuh#L36}{Код} предыдущей реализации сложения матриц в cuBool (Дата доступа: 19.06.2025)} в cuBool. Было обнаружено, что она использует библиотеку nsparse~\cite{Nsparse}. Для проверки гипотезы, что эта реализация не дает достаточной производительности, функция сложения была реализована аналогично функции умножения на инвертированную матрицу. Для сохранения старой функциональности была добавлена опция для выбора реализации функции сложения --- \verb|CUBOOL_USE_NSPARSE_MERGE_FUNCTOR|.
+
+При применении vtune для версии с новой функцией сложения матриц, видно значительное ускорение в 2.34 раза, теперь время выполнения всех запросов составляет 116.6 секунд, а время работы самой функции сложения матриц сократилось с 164.2 секунд до 10.5, то есть ускорение в 15.6 раз.
+
+Так же была обнаружена ошибка в файле CmakeLists.txt библиотеки cuBool (Листинг \ref{IncorrectCompileOptions}) --- перепутаны флаги оптимизаций для компилятора в конфигурациях Debug и Release. В Debug используются оптимизации компилятора, а в Release --- нет. Было убрано явное выставление флагов, так как хорошей практикой при написании CmakeLists считается не выставлять явно флаги компиляции, если нет необходимости.
+
+% Листинг \ref{CmakeOption})
+\begin{listing}
+    \caption{Ошибочное выставление флагов компиляции}
+    \begin{minted}[fontsize=\small]{Cmake}
+target_compile_options(cubool PRIVATE $<$<AND:$<CONFIG:Debug>,
+                                        $<COMPILE_LANGUAGE:CXX>>: -O2>)
+target_compile_options(cubool PRIVATE $<$<AND:$<CONFIG:Release>,
+                                        $<COMPILE_LANGUAGE:CXX>>: -O0>)
+  \end{minted}
+\label{IncorrectCompileOptions}
+\end{listing}
+
+
+Это изменение не повлияло на время выполнения запросов (так как эти опции не относятся к кернелам CUDA, в которых происходят сами вычисления), зато сильно повлияло на время загрузки запросов: функция преобразования матриц в формат CSR \verb|cuBool_Matrix_Build| стала работать в 8.3 раз быстрее --- вместо 5686.4 секунд 686.3 секунд.
+
+Так же после анализа времени работы алгоритма на CPU было обнаружено, что транспонирование матриц не занимает времени, в то время как в реализации для GPU оно занимало около 25\%. Было замечено, что в бенчмарке для CPU транспонированные матрицы уже передаются в алгоритм. После этого была добавлена такая возможность и в бенчмарк для реализации для GPU.
+
+\subsection{Организация репозитории cuBoolGraph}
+
+Была организована GitHub репозиторий cuBoolGraph\footnote{Репозиторий cuBoolGraph: \url{https://github.com/SparseLinearAlgebra/cuBoolGraph} (Дата доступа: 19.06.2025)} в ветке \texttt{add-rpq}. Была выбрана следующая структура файлов (Листинг \ref{cuBoolGraphFiles}).
+
+\begin{listing}[H]
+    \caption{Структура файлов cuBoolGraph}
+    \label{cuBoolGraphFiles}
+    
+    \begin{minted}[]{shell} 
+cuBoolGraph
+├── deps
+│   ├── cuBool
+│   ├── fast_matrix_market
+│   └── googletest
+├── include
+├── src
+└── tests
+    └── test_data
+   \end{minted}
+\end{listing}
+
+В директории \verb|src| находятся исходные файлы алгоритмов, в \verb|include| --- их заголовочные файлы. Также есть директория с тестами \verb|tests|. В директории \verb|deps| лежат внешние зависимости. Это, естественно, библиотека \verb|cuBool|, а также зависимости для тестирования --- \verb|googletests|\footnote{GitHub репозиторий googletests: \url{https://github.com/google/googletest} (Дата доступа: 19.06.2025)} и \verb|fast_matrix_market|\footnote{GitHub репозиторий \texttt{fast\_matrix\_market}: \url{https://github.com/alugowski/fast_matrix_market} (Дата доступа: 19.06.2025)} для загрузки матриц в формате matrix market. Все зависимости присоединяются к библиотеке при помощи \verb|git submodule|. Также был настроен CI, в котором запускаются тесты.
+
