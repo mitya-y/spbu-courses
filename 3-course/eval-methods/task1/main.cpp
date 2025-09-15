@@ -16,8 +16,10 @@ void interractive_solve(const Range &range, float eps, ComputedFunc f, ComputedF
   }
 
   std::print("choose method ({} - Bissection, {} - Newton, {} - Newton2, {} - Secants): ",
-    std::to_underlying(SolveMethod::Bissection), std::to_underlying(SolveMethod::Newton),
-    std::to_underlying(SolveMethod::Newton2), std::to_underlying(SolveMethod::Secants));
+    std::to_underlying(SolveMethod::Bissection), solve_method_name(SolveMethod::Bissection),
+    std::to_underlying(SolveMethod::Newton), solve_method_name(SolveMethod::Newton),
+    std::to_underlying(SolveMethod::Newton2), solve_method_name(SolveMethod::Newton2),
+    std::to_underlying(SolveMethod::Secants), solve_method_name(SolveMethod::Secants));
   uint32_t solve_method;
   std::cin >> solve_method;
 

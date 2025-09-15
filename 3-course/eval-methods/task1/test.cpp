@@ -44,7 +44,7 @@ static bool test() {
         return false;
       }
     }
-    std::println("test of method {} done", i);
+    std::println("test of method {} done", solve_method_name(method));
   }
 
   return true;

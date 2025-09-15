@@ -4,6 +4,7 @@
 #include <numeric>
 #include <utility>
 #include <cmath>
+#include <cassert>
 
 using ComputedFunc = std::function<double(double)>;
 
@@ -43,6 +44,23 @@ enum SolveMethod : uint32_t {
   MethodsNum,
 };
 
+constexpr std::string_view solve_method_name(SolveMethod method) {
+  switch (method) {
+  case SolveMethod::Bissection:
+    return "Bissection";
+ case SolveMethod::Newton:
+    return "Newton";
+  case SolveMethod::Newton2:
+    return "Newton2";
+  case SolveMethod::Secants:
+    return "Secants";
+  default:
+    assert(false); // invalid solve method
+  }
+};
+
 std::vector<Range> split_ranges(const Range &range, ComputedFunc f, uint32_t step_numbers = 40);
 
-double solve(const Range &range, float eps, ComputedFunc f, ComputedFunc df, SolveMethod method);
+double solve(const Range &range, float eps,
+             ComputedFunc f, ComputedFunc df,
+             SolveMethod method, uint32_t iteration_max_number = 20000);
