@@ -64,3 +64,7 @@ std::vector<Range> split_ranges(const Range &range, ComputedFunc f, uint32_t ste
 double solve(const Range &range, float eps,
              ComputedFunc f, ComputedFunc df,
              SolveMethod method, uint32_t iteration_max_number = 20000);
+
+
+void enable_logs();
+void disbale_logs();

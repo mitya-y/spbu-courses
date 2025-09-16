@@ -15,7 +15,7 @@ void interractive_solve(const Range &range, float eps, ComputedFunc f, ComputedF
     throw std::runtime_error(std::format("invalid range_idx: {}", range_idx));
   }
 
-  std::print("choose method ({} - Bissection, {} - Newton, {} - Newton2, {} - Secants): ",
+  std::print("choose method ({} - {}, {} - {}, {} - {}, {} - {}): ",
     std::to_underlying(SolveMethod::Bissection), solve_method_name(SolveMethod::Bissection),
     std::to_underlying(SolveMethod::Newton), solve_method_name(SolveMethod::Newton),
     std::to_underlying(SolveMethod::Newton2), solve_method_name(SolveMethod::Newton2),
@@ -23,7 +23,9 @@ void interractive_solve(const Range &range, float eps, ComputedFunc f, ComputedF
   uint32_t solve_method;
   std::cin >> solve_method;
 
+  enable_logs();
   double root = solve(change_sign_ranges[range_idx], eps, f, df, static_cast<SolveMethod>(solve_method));
+  disbale_logs();
 
   std::println("root = {}\n\n", root);
 }
