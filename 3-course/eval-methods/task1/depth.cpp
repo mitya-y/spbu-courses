@@ -44,7 +44,7 @@ static void print_table(double radius = 0.62) {
 
   std::println("radius = {}", radius);
   for (auto &&[name, density] : table) {
-    std::println("{} | {} kg/m^3 | {}", name, density, calculate_depth(radius, density));
+    std::println("{} | {} kg/m^3 | {:.3}", name, density, calculate_depth(radius, density));
   }
 }
 

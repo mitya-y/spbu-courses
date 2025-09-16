@@ -23,34 +23,70 @@ static ComputedFunc parse_function() {
   return str2func(func);
 }
 
-void interractive_solve(const Range &range, float eps, ComputedFunc f, ComputedFunc df) {
-  auto change_sign_ranges = split_ranges(range, f);
+void interractive_solve(const Range &range, ComputedFunc f, ComputedFunc df) {
+  std::vector<Range> choosed;
+  size_t prev_size = 0;
+  while (true) {
+    std::print("input step_number: ");
+    uint32_t step_num;
+    std::cin >> step_num;
 
-  std::println("ranges with sign changing:");
-  for (uint32_t i = 0; i < change_sign_ranges.size(); i++) {
-    std::println("  {}: {}", i, change_sign_ranges[i].to_str());
+    auto change_sign_ranges = split_ranges(range, f, step_num);
+
+    std::println("ranges with sign changing{}:",
+      change_sign_ranges.size() != prev_size ? " (new ranges found)" : "");
+    prev_size = change_sign_ranges.size();
+    for (uint32_t i = 0; i < change_sign_ranges.size(); i++) {
+      std::println("  {}: {}", i, change_sign_ranges[i].to_str());
+    }
+    std::println("");
+
+    std::print("input 0 to end or -1 to repeat: ");
+    int res = 0;
+    std::cin >> res;
+    if (res == 0) {
+      choosed = std::move(change_sign_ranges);
+      break;
+    }
   }
-  std::println("");
-  std::print("choose range: ");
-  uint32_t range_idx = 0;
-  std::cin >> range_idx;
-  if (range_idx >= change_sign_ranges.size()) {
-    throw std::runtime_error(std::format("invalid range_idx: {}", range_idx));
+
+  while (true) {
+    std::print("input range number: ");
+    int range_idx = 0;
+    std::cin >> range_idx;
+
+    if (range_idx >= choosed.size()) {
+      throw std::runtime_error(std::format("invalid range_idx: {}", range_idx));
+    }
+
+    auto choosed_range = choosed[range_idx];
+
+    std::print("input eps: ");
+    double eps;
+    std::cin >> eps;
+
+    std::print("choose method (-1 - all, {} - {}, {} - {}, {} - {}, {} - {}): ",
+      std::to_underlying(SolveMethod::Bissection), solve_method_name(SolveMethod::Bissection),
+      std::to_underlying(SolveMethod::Newton), solve_method_name(SolveMethod::Newton),
+      std::to_underlying(SolveMethod::Newton2), solve_method_name(SolveMethod::Newton2),
+      std::to_underlying(SolveMethod::Secants), solve_method_name(SolveMethod::Secants));
+    int solve_method;
+    std::cin >> solve_method;
+
+    enable_logs();
+    if (solve_method == -1) {
+      for (int i = 0; i < SolveMethod::MethodsNum; i++) {
+        SolveMethod method = static_cast<SolveMethod>(i);
+        std::println("---------------------------------------------------");
+        double root = solve(choosed_range, eps, f, df, method);
+        std::println("root = {}", root);
+      }
+    } else {
+      double root = solve(choosed_range, eps, f, df, static_cast<SolveMethod>(solve_method));
+      std::println("root = {}", root);
+    }
+    disbale_logs();
   }
-
-  std::print("choose method ({} - {}, {} - {}, {} - {}, {} - {}): ",
-    std::to_underlying(SolveMethod::Bissection), solve_method_name(SolveMethod::Bissection),
-    std::to_underlying(SolveMethod::Newton), solve_method_name(SolveMethod::Newton),
-    std::to_underlying(SolveMethod::Newton2), solve_method_name(SolveMethod::Newton2),
-    std::to_underlying(SolveMethod::Secants), solve_method_name(SolveMethod::Secants));
-  uint32_t solve_method;
-  std::cin >> solve_method;
-
-  enable_logs();
-  double root = solve(change_sign_ranges[range_idx], eps, f, df, static_cast<SolveMethod>(solve_method));
-  disbale_logs();
-
-  std::println("root = {}", root);
 }
 
 static double default_f(double x) { return std::pow(x - 2, 2) - 1; }
@@ -59,15 +95,13 @@ static double default_df(double x) { return 2 * (x - 2); }
 int main() {
   std::println("Finding function roots");
 
-  auto range = Range::parse();
-  std::print("input eps: ");
-  double eps;
-  std::cin >> eps;
-
   ComputedFunc f = default_f, df = default_df;
   std::string_view func = "(x - 2)^2 - 1";
   std::println("function: {}", func);
   // f = str2func(func);
   // f = parse_function();
-  interractive_solve(range, eps, f, df);
+
+  auto range = Range::parse();
+
+  interractive_solve(range, f, df);
 }
