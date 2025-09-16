@@ -1,4 +1,27 @@
+#include <set>
+#include "muParser.h"
+
 #include "solver/solver.hpp"
+
+static ComputedFunc str2func(std::string_view str) {
+  static std::array<std::pair<double, mu::Parser>, 10000> _variables;
+  static uint32_t _variables_size = 0;
+
+  auto &[var, parser] = _variables[_variables_size++];
+  parser.DefineVar("x", &var);
+
+  parser.SetExpr(str.data());
+
+  return [&var, &parser] (double x) { var = x; return parser.Eval(); };
+}
+
+static ComputedFunc parse_function() {
+  std::println("input function of x: ");
+  std::getchar();
+  std::string func;
+  std::getline(std::cin, func);
+  return str2func(func);
+}
 
 void interractive_solve(const Range &range, float eps, ComputedFunc f, ComputedFunc df) {
   auto change_sign_ranges = split_ranges(range, f);
@@ -27,16 +50,24 @@ void interractive_solve(const Range &range, float eps, ComputedFunc f, ComputedF
   double root = solve(change_sign_ranges[range_idx], eps, f, df, static_cast<SolveMethod>(solve_method));
   disbale_logs();
 
-  std::println("root = {}\n\n", root);
+  std::println("root = {}", root);
 }
 
 static double default_f(double x) { return std::pow(x - 2, 2) - 1; }
 static double default_df(double x) { return 2 * (x - 2); }
 
 int main() {
+  std::println("Finding function roots");
+
   auto range = Range::parse();
   std::print("input eps: ");
   double eps;
   std::cin >> eps;
-  interractive_solve(range, eps, default_f, default_df);
+
+  ComputedFunc f = default_f, df = default_df;
+  std::string_view func = "(x - 2)^2 - 1";
+  std::println("function: {}", func);
+  // f = str2func(func);
+  // f = parse_function();
+  interractive_solve(range, eps, f, df);
 }

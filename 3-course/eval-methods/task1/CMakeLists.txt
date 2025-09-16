@@ -4,3 +4,5 @@ project(task1)
 add_executable(solver main.cpp solver/solver.cpp)
 add_executable(tests test.cpp solver/solver.cpp)
 add_executable(depth depth.cpp solver/solver.cpp)
+
+target_link_libraries(solver muparser)
